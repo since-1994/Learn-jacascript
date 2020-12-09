@@ -1,9 +1,9 @@
-const names= ['kim', 'min', 'seok'];
-
-for(let name of names){
-    console.log(name);
+const user = {
+    name : 'minseok',
+    age: 25,
+    money: 1000000
 }
 
-names.forEach(function(name){
-    console.log(name);
-})
+for(let key in user){
+    console.log(user[key]);
+}
