@@ -9,5 +9,6 @@
 ## DOM
 
 - [what is DOM](#)
-  ![img](./img/img1.png)
+
+<img src = "./img/img1.png" height= "400"/>
   
