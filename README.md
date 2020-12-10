@@ -9,3 +9,5 @@
 ## DOM
 
 - [what is DOM](#)
+  ![img](./img/img1.png)
+  
