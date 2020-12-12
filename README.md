@@ -18,4 +18,5 @@
   - querySelectorAll을 하면 NodeList를 얻고 getElementsBy를 하면 HTMLCollection을 얻는다.
   - NodeList는 중간에 item이 추가 되더라도 자동 업데이트를 하지 않는다.
   - HTMLCollection은 중간에 item이 추가되면 자동으로 업데이트를 한다.
-    **_그렇다면 querySelector를 지양해야 하는가? 그렇지 않다. item들을 포함하는 부모를 찾고 부모의 children을 부르면 알아서 HTMLCollection을 불러주기 때문이다._**
+  
+    **그렇다면 querySelector를 지양해야 하는가? 그렇지 않다. item들을 포함하는 부모를 찾고 부모의 children을 부르면 알아서 HTMLCollection을 불러주기 때문이다.**
