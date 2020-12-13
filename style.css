@@ -1,0 +1,9 @@
+.big-size {
+  color: red;
+  font-size: 100px;
+  transition: font-size 0.5s ease-in;
+}
+
+h1 {
+  transition: all 0.5s ease-in;
+}
