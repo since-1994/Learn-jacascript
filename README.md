@@ -46,6 +46,14 @@ ul.addEventeListener("click", function2);
 
 위의 상황에서 li를 클릭하면 어떻게 될까? function1과 function2가 모두 실행된다. 이것이 bubbling이다. body, html, window.. 계속 올라가게 된다. 만약 bubbling을 막고 싶다면 `event.stopPropagation()`을 해주어야 한다.
 
+event를 통해 click event가 이루어진 자식을 구분할 수 있다. 아래와 같이 사용 가능하다.
+
+```javascript
+div.addEventListener("click", function (event) {
+  console.log(event.target);
+});
+```
+
 - [Session & local storage]()
 
   - local-storage 사용법

@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <title>todo list</title>
 </head>
 <body>
-    <h1>hello</h1>
-    <script src = "events.js"></script>
+    <div class= "header">
+        <header>
+            <h1>민석이의 todo</h1>
+        </header>
+        <form>
+            <input type="text" class= "todo-input" placeholder="할일을 적으세요">
+            <button class="todo-button" type="submit">
+                <i class="fas fa-plus-square"></i>
+            </button>
+        </form>    
+    </div>
+    <div class="todo-container">
+        <ul class="todo-list">
+        </ul>
+    </div>
+    <script src="https://kit.fontawesome.com/3f1d5ac7cf.js" crossorigin="anonymous"></script>
+    <script src="./app.js"></script>
 </body>
 </html>
