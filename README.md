@@ -196,3 +196,35 @@ console.log(arrowGame); // ["minecraft2", "pockemon2"]
 ```
 
 위에 예시처럼 arrow function에서 만약 return 값만 필요하다면 `return`을 생략하고 적을 수도 있다.
+
+- SORT
+
+javascript sort는 특이한게 number를 string으로 바꿔서 정렬을 한다. 아래를 보자.
+
+```javascript
+const numbers = [2, 3, 4, 1];
+
+numbers.sort();
+
+console.log(numbers); // [1, 2, 3, 4]
+
+const weird = [22, 1, 3];
+
+weird.sort();
+
+console.log(weird); // [1, 22 ,3]
+```
+
+그래서 숫자를 정렬하려면 compare function 이 필요하다. 아래를 보자
+
+```javascript
+const weird = [22, 1, 3];
+
+weird.sort(function (a, b) {
+  return a - b; //오름 차순 compare function 내림 차순 : b-a;
+});
+
+console.log(weird); // [1, 3, 22]
+```
+
+compare function을 이용하면 object 들도 특정 property를 기준으로 정렬할 수 있다.
