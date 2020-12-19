@@ -1,5 +1,23 @@
-const numbers = [2, 3, 4, 1];
+class Animator{
+  constructor(selector){
+    this.selector = document.querySelector(selector);
+  }
 
-numbers.sort();
+  fadeOut(time){
+    if(this.selector.classList.contains('active')){
+      this.selector.style.opacity = 1;
+      this.selector.classList.remove('active');
+    }else{
+      this.selector.style.transition = `all ${time}s ease-in`;
+      this.selector.style.opacity = 0;
+      this.selector.classList.add('active');
+    }
+  }
+}
 
-console.log(numbers); // [1, 2, 3, 4]
+const intro = new Animator('h1');
+const button = document.querySelector('button');
+
+button.addEventListener('click', () =>{
+  intro.fadeOut(0.5);
+});
