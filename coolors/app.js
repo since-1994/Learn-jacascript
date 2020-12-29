@@ -195,6 +195,124 @@ submitSave.addEventListener('click', function(){
     closePalette();
 });
 
+libraryBtn.addEventListener('click', openLibrary);
+closeLibraryBtn.addEventListener('click', closeLibrary);
+
+function openLibrary(e){
+    libraryContainer.classList.add('active');
+    const popup = libraryContainer.querySelector('.library-popup');
+    popup.classList.add('active');
+}
+
+function closeLibrary(e){
+    libraryContainer.classList.remove('active');
+    const popup = libraryContainer.querySelector('.library-popup');
+    popup.classList.remove('active');
+}
+
+function changeBg(e){
+
+    savedPalettes = JSON.parse(localStorage.getItem('palettes'));
+    
+    const index = e.target.parentElement.parentElement.getAttribute('data-palette');
+    const result = savedPalettes.find(function(palette){
+        return palette.nr === Number(index);
+    })
+    const colors = result.colors;
+
+    initialColors = [];
+    colorDivs.forEach((div, index) => {
+        if(div.classList.contains('locked')){
+            div.classList.remove('locked');
+            const btn = div.querySelector('.lock');
+            btn.innerHTML = '<i class = "fas fa-lock-open"></i>'
+        }
+        const hexText = div.children[0];
+        initialColors.push(colors[index]);
+        const icons = div.querySelectorAll('.controls button');
+
+        checkTextContrast(colors[index], hexText);
+        icons.forEach(icon => {
+            checkTextContrast(colors[index], icon);
+        })
+        div.style.background=`${colors[index]}`;
+        hexText.innerText = `${colors[index]}`;
+        
+        const color = chroma(colors[index]);
+        const sliders = div.querySelectorAll('.sliders input');
+        
+        const hue= sliders[0];
+        const brightness = sliders[1];
+        const saturation = sliders[2];
+        colorizeSliders(color, hue, brightness, saturation);
+    });
+
+    //Initialize color slider
+    sliders.forEach(slider => {
+        if(slider.name === 'hue'){
+            slider.value = Math.floor(chroma(initialColors[slider.getAttribute('data-hue')]).hsl()[0]);
+        }else if(slider.name === 'brightness'){
+            slider.value = Math.floor(chroma(initialColors[slider.getAttribute('data-bright')]).hsl()[2]*100)/100;
+        }else{
+            slider.value = Math.floor(chroma(initialColors[slider.getAttribute('data-sat')]).hsl()[1]*100)/100;
+        }
+    })
+
+}
+
+function loadLibrary(){
+    savedPalettes = JSON.parse(localStorage.getItem('palettes'));
+    const popup = document.querySelector('.collection');
+    savedPalettes.forEach(savedPalette => {
+        const palette = document.createElement('div');
+        const nr = savedPalette.nr;
+        const colors = savedPalette.colors;
+        const name = savedPalette.name;
+
+        palette.classList.add('custom-palette');
+        palette.setAttribute('data-palette', nr);
+    
+        const title = document.createElement('h4');
+        title.innerText = name;
+    
+        const preview = document.createElement('div');
+        preview.classList.add('small-preview');
+        preview.addEventListener('click', function(e){
+            changeBg(e);
+            closeLibrary();
+        });
+    
+        colors.forEach(smallColor => {
+            const smallDiv = document.createElement('div');
+            smallDiv.style.backgroundColor = smallColor;
+            preview.appendChild(smallDiv);
+        })
+    
+        const paletteDel = document.createElement('button');
+        paletteDel.addEventListener('click', deleteLibrary);
+        paletteDel.classList.add('delete-palette-btn');
+        paletteDel.innerHTML = '<i class="fas fa-trash-alt"></i>'
+    
+        palette.appendChild(title);
+        palette.appendChild(preview);
+        palette.appendChild(paletteDel);
+        popup.appendChild(palette);
+    })
+}
+
+function deleteLibrary(e){
+    const popup = document.querySelector('.collection');
+    const deletedPalette = e.target.parentElement;
+    popup.removeChild(deletedPalette);
+    const index = deletedPalette.getAttribute('data-palette');
+    savedPalettes = JSON.parse(localStorage.getItem('palettes'));
+    const result = savedPalettes.filter((palette)=>{
+        return palette.nr != index;
+    });
+    localStorage.setItem('palettes', JSON.stringify(result));
+}
+
+
 function openPalette(e){
     const popup =  saveContainer.children[0];
     saveContainer.classList.add('active');
@@ -208,6 +326,7 @@ function closePalette(){
 }
 
 function savePalette(){
+    const popup = document.querySelector('.collection');
     const name = saveInput.value;
     saveInput.value = "";
     const colors= [];
@@ -218,19 +337,25 @@ function savePalette(){
     if(savedPalettes === null){
         savedPalettes = [];
     }
-    const nr = savedPalettes.length;
+    const nr = savedPalettes.length == 0 ?  0 : savedPalettes[savedPalettes.length-1].nr+1;
     const newPalette = {name, colors, nr};
     savedPalettes.push(newPalette);
     localStorage.setItem('palettes', JSON.stringify(savedPalettes));
 
     const palette = document.createElement('div');
+
     palette.classList.add('custom-palette');
+    palette.setAttribute('data-palette', nr);
+
     const title = document.createElement('h4');
     title.innerText = name;
+
     const preview = document.createElement('div');
     preview.classList.add('small-preview');
-    preview.style.display = "flex";
-    preview.style.flex = '1';
+    preview.addEventListener('click', function(e){
+        changeBg(e);
+        closeLibrary();
+    });
 
     colors.forEach(smallColor => {
         const smallDiv = document.createElement('div');
@@ -238,10 +363,18 @@ function savePalette(){
         preview.appendChild(smallDiv);
     })
 
-    const paletteBtn = document.createElement('button');
-    paletteBtn.classList.add('pick-palette-btn');
-    paletteBtn.classList.add(nr);
-    paleteeBtn.innerText = 'Select';
+    const paletteDel = document.createElement('button');
+    paletteDel.addEventListener('click', deleteLibrary);
+    paletteDel.classList.add('delete-palette-btn');
+    paletteDel.innerHTML = '<i class="fas fa-trash-alt"></i>'
+
+    palette.appendChild(title);
+    palette.appendChild(preview);
+    palette.appendChild(paletteDel);
+    popup.appendChild(palette);
 }
 
+
+
 randomColors();
+loadLibrary();

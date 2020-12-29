@@ -205,3 +205,64 @@ input.save-name {
   padding: 1rem;
   font-size: 1.3rem;
 }
+
+.library-popup {
+  width: 80%;
+}
+
+.library-popup > h4 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.collection {
+  width: 90%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  grid-auto-rows: 5rem;
+  gap: 1rem;
+  max-height: 50vh;
+  overflow: scroll;
+  margin-bottom: 1rem;
+}
+
+.custom-palette {
+  display: grid;
+  height: 5rem;
+  margin-bottom: 2rem;
+  grid-template-columns: 1fr 0.5fr;
+  grid-template-rows: 3rem 2rem;
+  border-radius: 0.5rem;
+  border: 0.01rem solid rgb(161, 161, 161);
+  overflow: hidden;
+  gap: 0.2rem;
+}
+
+.custom-palette h4 {
+  text-align: center;
+  align-self: center;
+}
+
+.small-preview {
+  grid-column: 1 / -1;
+  grid-row: 1 / 2;
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+}
+
+.small-preview div {
+  flex: 1;
+  transition: all 0.1s ease-in;
+}
+
+.small-preview div:hover {
+  flex: 3;
+}
+
+.delete-palette-btn {
+  cursor: pointer;
+  color: rgb(5, 2, 15);
+  background: rgb(175, 170, 170);
+  border: none;
+}
