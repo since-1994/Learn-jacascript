@@ -558,3 +558,203 @@ user1.getInfo(); // minseok 27
 ```
 
 `extends User`를 해주고 constructor에서 `super(name, age)`를 해주면 메소드를 포함한 모든 property를 상속합니다.
+
+## API & LIBRARY
+
+- INTERSECTION OBSERVER API
+
+대상으로 정한 요소가 다른 특정요소(root)나 viewport와 교차하는 상황에 콜백을 호출한다. 기본 root는 viewport이며 root를 설정하고 싶다면 대상의 부모 요소에게만 설정 가능하다. root와 대상이 겹치는 최소 정도를 threshold로 표현하며 0.0~1.0이 가능하다. 기존의 `Element.getBoundingClientRect()`와 같은 메서드를 호출하는 것보다 성능이 좋다. 이런 메서드를 사용하려면 scroll과 같은 이벤트를 계속 관찰하기 때문인가? 사용 예시는 아래를 보자.
+
+```javascript
+const section = document.querySelecto("section");
+
+let options = {
+  threshold: 0.5,
+};
+
+let observer = new IntersectionObserver(callback, options);
+
+function callback(entries) {
+  entries.forEach((entty) => {
+    console.log(entry);
+  });
+}
+
+observer.observe(section);
+```
+
+위에 코드를 보면 callback 함수 argument로 entries라는 표현이 나오는데 observer에 등록된 대상들을 의미한다. 코드에는 section만 등록되어 있지만 `observer.observe(대상)`을 통해 여러 대상을 등록할 수 있기 때문이다. 위의 코드는 section과 viewport가 50%이 되는 순간 callback함수가 실행된다.
+
+- SCROLL MAGIC
+  보통 더 정교한 에니메이션을 위해서 INTERSECTION OBSERVER 도 사용하지 않고 scroll magic api를 많이 사용한다.
+
+  - <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/ScrollMagic.min.js" integrity="sha512-8E3KZoPoZCD+1dgfqhPbejQBnQfBXe8FuwL4z/c8sTrgeDMFEnoyTlH3obB4/fV+6Sg0a0XF+L/6xS4Xx1fUEg==" crossorigin="anonymous"></script>
+  - <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/debug.addIndicators.js" integrity="sha512-mq6TSOBEH8eoYFBvyDQOQf63xgTeAk7ps+MHGLWZ6Byz0BqQzrP+3GIgYL+KvLaWgpL8XgDVbIRYQeLa3Vqu6A==" crossorigin="anonymous"></script>
+    개발 단계에서 indicator를 볼 수 있게.
+  - <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/animation.gsap.min.js" integrity="sha512-5/OHwmQzDSBS0Ous4/hlYoWLHd06/d2r7LdKZQVBXOA6PvOqWVXtdboiLTU7lQTGyVoKVTNkwi0ol4gHGlw5ww==" crossorigin="anonymous"></script>
+    scroll magic 과 gsap을 함께 사용하기 위해서
+
+  아래 코드를 통해 사용 방법을 알아보자.
+
+  ```javascript
+  const controller = new ScrollMagic.Controller();
+
+  const explreScene = new ScrollMagic.Scene({
+    triggerElement: "section",
+    triggerHook: 0.5,
+  })
+    .addIndicators({ colorStart: "white", colorTrigger: "white" })
+    .addTo(controller);
+  ```
+
+  triggerHook은 threshold랑 비슷한 역할이라고 보면 되고 querySelector도 사용할 필요가 없다. selector만 적어주면 된다. triggerElement는 대상이 되는 것이다. trigger 대상이라고 보면 된다.
+
+- GSAP
+
+기존에는 애니메이션을 처리하기 위해서 class를 toggle하거나 그랬다면 gsap을 이용해보자
+
+- <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/animation.gsap.js" integrity="sha512-judXDFLnOTJsUwd55lhbrX3uSoSQSOZR6vNrsll+4ViUFv+XOIr/xaIK96soMj6s5jVszd7I97a0H+WhgFwTEg==" crossorigin="anonymous"></script>
+
+```javascript
+let controller;
+let slideScene;
+
+function animateSlides() {
+  //Init controller
+  controller = new ScrollMagic.Controller();
+  //Select some things
+  const slides = document.querySelectorAll(".slide");
+  const nav = document.querySelector(".nav-header");
+  //Loop over
+  console.log(slides);
+  slides.forEach((slide) => {
+    const revealImg = slide.querySelector(".reveal-img");
+    const img = slide.querySelector("img");
+    const revealText = slide.querySelector(".reveal-text");
+
+    const slideTl = gsap.timeline({
+      defaults: { duration: 1, ease: "power2.inOut" },
+    });
+    slideTl.fromTo(revealImg, { x: "0%" }, { x: "100%" });
+    slideTl.fromTo(img, { scale: 2 }, { scale: 1 }, "-=1");
+
+    slideScene = new ScrollMagic.Scene({
+      triggerElement: slide,
+      triggerHook: 0.25,
+      reverse: false,
+    })
+      .addIndicators()
+      .setTween(slideTl) //gsap의 timeline을 넣어준다.
+      .addTo(controller);
+  });
+}
+
+animateSlides();
+```
+
+`gsap.timeline({defaults: {duration: 1, ease: "power2.inOut"}});` 부분을 보자. timeline은 바로 순서대로 진행될 에니메이션을 위해서 만든 것이다. 이것에 해당되는 에니메이션은 모두 1초동안 동작하고 power2.inOut의 ease를 갖는다는 뜻이다.
+`slideTl.fromTo()`는 타임라인에 추가할 에니메이션을 정의하는 것으로 from 부터 to까지 정한다는 것이다. `slideTl.to()`와 같이 결과만 결정할 수도 있다. fromTo에 제일 먼저 들어가는 arg는 에니메이션이 행해질 대상이다. 그다음 인자는 from 그다음 인자는 to를 의미한다. 그 다음에 들어가는 것은 바로 timeline상에서의 위치 조절을 위한 것이다. "-=1"은 원래의 timeline보다 1초 먼저 동작한다는 것이다.
+
+- BARBA
+
+  - <script src="https://unpkg.com/@barba/core"></script>
+    요거를 추가해주구요.(barba homepage 참고!)
+
+  HTML 파일에서 body부분에 `data-barba="wrapper"`로 property를 줍니다. page transition을 원하는 부분을 `data-barba="container"` property를 줍니다. 또한, `data-barba-namespace`property를 함께 지정해주어 현재 어느 페이지에 있는지를 barba가 알게 해줍니다. 예를 들어 현재 html문서가 home을 나타낸다고 하면 `data-barba-namespace="home"`이라고 해줍니다. 그리고 똑같은 방법으로 다른 page를 나타내는 HTML 문서에도 property를 추가해줍니다.
+
+## MISC
+
+- DECONSTRUCT
+
+```javascript
+const users = ["minseok", "hee29u", "minsokku"];
+
+const [user1, user2, user3] = users;
+console.log(user3); // minsokku
+
+const [user1, ...rest] = users;
+console.log(user1); //minseok
+```
+
+위와 같이 user 배열에서 아이템을 할당할때 위와 같은 방법으로 하는것을 deconstruct라고 한다. 일반 object에도 비슷한 방법으로 사용가능하다.
+
+```javascript
+const user = {
+  name: "minseok",
+  age: 25,
+  analytics: {
+    subscribers: 25000,
+    video: 250,
+  },
+};
+
+const { age } = user;
+console.log(age); // 25
+
+const {
+  analytics: { video },
+} = user;
+
+console.log(video); // 250
+```
+
+- IIFE
+  Immediately Invoked Function Expression으로 함수를 정의하고 괄호로 감싸준 다음에 뒤에 괄호를 붙이면 함수 정의와 동시에 실행이 가능하다. 라이브러리에서 전역 함수 중복을 막기 위해 많이 사용합니다.
+
+```javascript
+(function hello() {
+  console.log("hello");
+})(); // hello
+```
+
+- CLOSURES..
+  잘 모르겠네요.. 알아보겠습니다.
+
+## ASYNC
+
+- AJAX
+  Asyncronous Javascript And XML
+
+XML이긴 하지만 XML을 사용하는 사람은 이제 거의 없죠.. JSON을 사용할겁니다. 이런건 차치해두고 우리는 Async에 집중합니다. 우리가 일반적으로 하는 프로그래밍은 sync code 입니다.
+
+```javascript
+/// sync code example
+
+function otherFunc() {
+  console.log("mid");
+}
+console.log("start");
+
+otherFunc();
+
+console.log("end");
+
+/*
+start
+mid
+end
+*/
+```
+
+위와 같이 코드 순서대로 실행되는게 sync code 입니다. callstack에 순서대로 들어갔고 빠지고 하게 됩니다. 그럼 이제 async code를 봅시다.
+
+```javascript
+/// sync code example
+
+console.log("start");
+
+setTimeout(() => {
+  console.log("mid");
+}, 2000);
+
+console.log("end");
+
+/*
+start
+end
+mid
+*/
+```
+
+뭔가 당연한거 같지만 CallStack을 생각해보면 이상하죠.setTimeout이 2초 뒤에 mid를 출력하고 끝나야 end로 넘어가야하는데 end가 먼저 실행되고 mid가 나오죠. 바로 setTimeout을 Callstack이 아니라 Web API에 보내기 때문에 가능합니다. 아래를 보면 간략히 나타내고 있습니다.
+<img src ="./img/img2.png" width = "200">
