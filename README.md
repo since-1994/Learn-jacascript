@@ -757,4 +757,4 @@ mid
 ```
 
 뭔가 당연한거 같지만 CallStack을 생각해보면 이상하죠.setTimeout이 2초 뒤에 mid를 출력하고 끝나야 end로 넘어가야하는데 end가 먼저 실행되고 mid가 나오죠. 바로 setTimeout을 Callstack이 아니라 Web API에 보내기 때문에 가능합니다. 아래를 보면 간략히 나타내고 있습니다.
-<img src ="./img/img2.png" width = "200">
+<img src ="./img/img2.png" width = "400">
