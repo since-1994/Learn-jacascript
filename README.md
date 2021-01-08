@@ -758,3 +758,205 @@ mid
 
 뭔가 당연한거 같지만 CallStack을 생각해보면 이상하죠.setTimeout이 2초 뒤에 mid를 출력하고 끝나야 end로 넘어가야하는데 end가 먼저 실행되고 mid가 나오죠. 바로 setTimeout을 Callstack이 아니라 Web API에 보내기 때문에 가능합니다. 아래를 보면 간략히 나타내고 있습니다.
 <img src ="./img/img2.png" width = "400">
+이렇게 setTimeout을 Web Api로 보냈다가 정해둔 2초가 지나면 pop out되어 다시 Callstack으로 보내고 console.log를 실행하게 됩니다. 그래서 위와 같은 출력 결과가 나왔던 겁니다. setTimeout 말고도 addEventListener 같은 경우에도 특정 이벤트가 실행되기 전에 web api에서 담겨 있게 됩니다.
+
+- CALLBACK AND CALLBACK HELL
+
+자 우선 asyncronous의 문제점을 살펴봅시다. 우리가 서버로부터 로그인하는 유저의 정보를 받아온다고 합시다. 편의상 서버에서 받아오는 시간을 setTimeout으로 구현했습니다.
+
+```javascript
+function loginUser(email, password) {
+  setTimeout(() => {
+    if (password === "1@") {
+      return true;
+    } else {
+      return false;
+    }
+  }, 2000);
+}
+
+const result = loginUser("minseok", "1@");
+console.log(result); //undefined
+```
+
+예시에서 보는 것처럼 서버에서 어느정도의 시간이 걸릴지 모르기 때문에 true나 false를 결과로 받지 못하고 undefined를 출력하게 되죠.
+이런 상황에서 바로 callback 함수가 필요하게 됩니다.
+
+```javascript
+function loginUser(email, password, callback) {
+  setTimeout(() => {
+    callback({ name: email });
+  }, 2000);
+}
+
+const result = loginUser("minseok", "1@", (user) => {
+  console.log(user.name);
+});
+```
+
+- PROMISE
+
+위와 같은 콜백 지옥을 벗어나기 위한 Object로 훨씬 간결하게 코드를 나타낼 수 있다. 아래 예시를 보자.
+
+```javascript
+function loginUser(id, password) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("login success");
+      resolve({
+        id,
+        password,
+      });
+    }, 2000);
+  });
+}
+
+function getVideos(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("getVideos success");
+      resolve([
+        {
+          title: "video1",
+          content: "content1",
+        },
+        {
+          title: "video2",
+          content: "content2",
+        },
+        {
+          title: "video3",
+          content: "content3",
+        },
+      ]);
+    }, 1000);
+  });
+}
+
+function getContent(video) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log(video.content);
+    }, 1000);
+  });
+}
+
+loginUser("minseok", "1@")
+  .then((user) => getVideos(user.id))
+  .then((videos) => getContent(videos[0]));
+```
+
+위의 코드는 세개의 함수가 있다. 로그인 하기, 비디오 리스트 받아오기, 비디오 리스트 중 첫번째 비디오의 콘텐츠 가져오기 모두 순서대로 이루어져야 가능 하다. 각 함수를 보면 PROMISE Object를 반환하고 있다. 눈여겨 볼 점은 PROMISE 객체 안에 setTimeout이 있다는 것이다. resolve는 성공시에 결과값을 반환하는 함수이고, reject는 오류가 난 경우에 실행 될 함수이다. 프로미스 객체의 매서드 then은 성공시에 실행되는 것으로 user의 위에서 user가 뜻하는 것은 {id, password} 객체이고 videos가 뜻하는 것은 [{},{},{}] video 배열이다.
+
+- PROMISE.ALL
+
+만약에 한번에 받아오려는 정보가 여러 다른 서버에서 오는거라면 promise를 어떻게 사용하면 좋을까? 아래 예시를 보자.
+
+```javascript
+const yt = new Promise((resolve) => {
+  setTimeout(() => {
+    resolve({
+      name: "minseok",
+      age: 25,
+    });
+  }, 2000);
+});
+
+const fb = new Promise((resolve) => {
+  setTimeout(() => {
+    resolve({
+      follower: 24,
+      following: 12,
+    });
+  }, 3000);
+});
+
+Promise.all([yt, fb]).then((result) => console.log(result)); // [{name: 'minsoek', age:25}, {follower: 24, following: 12}]
+```
+
+위를 보면 유튜브 서버와 페이스북 서버가 있었다고 볼 수 있고 두 서버에서 각각 정보를 받아오는 것이다. 두 서버에서 주는 시간이 같을 수가 없기 때문에 한번에 처리하기 난감한데 이럴떄 Promise.all을 사용하면 된다. 주는 시간이 다르더라도 여러 서버 모두에서 정보가 도착했을 때 result로 반환해 준다.
+
+- ASYNC & AWAIT
+
+우선 callback 이나 promise나 javascript에서 일반적으로 사용하는 sync code와는 구조가 다릅니다. 일반적인 sync code의 구조처럼 asynchronous code를 작성할 수 있게 하는 것이 async와 await입니다. 아래 예시는 콜백 함수 예시의 코드를 refactoring 한 겁니다. 위에 코드를 참고하세요.
+
+```javascript
+function loginUser(id, password) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("login success");
+      resolve({
+        id,
+        password,
+      });
+    }, 2000);
+  });
+}
+
+function getVideos(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log("getVideos success");
+      resolve([
+        {
+          title: "video1",
+          content: "content1",
+        },
+        {
+          title: "video2",
+          content: "content2",
+        },
+        {
+          title: "video3",
+          content: "content3",
+        },
+      ]);
+    }, 1000);
+  });
+}
+
+function getContent(video) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.log(video.content);
+    }, 1000);
+  });
+}
+
+async function init() {
+  const loggedUser = await loginUser("minseok", "1@");
+  const videos = await getVideos(loggedUser.id);
+  const content = await getContent(videos[0]);
+  console.log(content);
+}
+
+init();
+/*
+login success
+getVideos success
+content1
+ */
+```
+
+같은 결과를 가지고 오지만 코드 구성이 sync code 와 비슷해진 걸 볼 수 있습니다. 다만 다른 점은 async 코드를 사용한다고 함수 정의에서 적어주어야 하구요. 함수 안에서도 promise를 반환하는 코드에서는 await를 써서 값을 받아옵니다. 그럼 코드를 좀 더 추가해서 완벽하게 만들어 볼까요? 데이터를 서버에서 받아오니까 실패 할수도 있겠죠? 실패할 경우에는 어떻게 하면 좋을까요?
+
+```javascript
+async function init() {
+  try {
+    const loggedUser = await loginUser("minseok", "1@");
+    const videos = await getVideos(loggedUser.id);
+    const content = await getContent(videos[0]);
+    console.log(content);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+init();
+```
+
+위처럼 원하는 동작에 대한 코드를 try 문 안에 넣어주구요 try문 안에서 error가 발생한다면 catch문에 argument로 보내게 됩니다.
+
+- FETCH
+
+이제 실제 서버로부터 정보를 받아봅시다. 뭐 api 주소를 사용하다고 합시다. api 주소로부터 정보를 받아오려면 어떻게 할까요? `fetch('api주소')`를 하면 Promise 객체를 반환해줍니다.
