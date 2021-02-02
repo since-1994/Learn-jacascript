@@ -1,10 +1,100 @@
 # Learn-jacascript
 
-## basics
+## Array basics
 
 - [for of, forEach](https://github.com/since-1994/Learn-jacascript/commit/490acb1408edca0134b7db8c1dc27eeb841559f2)
 - [for in](https://github.com/since-1994/Learn-jacascript/commit/9c7d7d4eabeaf9422546ab888ff419d89d505375)
-- [scope]()
+- join
+
+  seperator를 인자로 받습니다. seperator를 배열 원소 사이에 넣어 문자열로 합쳐줍니다.
+
+```javascript
+const arr = ["h", "e", "l", "l", "o"];
+// Seperator를 정해주지 않으면 default값은 ,입니다.
+console.log(arr.join()); // 'h,e,l,l,o'
+// Seperator를 ''공백 없는 string으로 주면
+console.log(arr.join("")); // 'hello'
+```
+
+- split
+
+  split은 seperator와 limit을 인자로 받습니다. seperator는 string이나 정규식 표현을 줄 수 있고 limit은 number를 받습니다. limit은 optional입니다.
+
+```javascript
+const string = "h, e, l, l, o";
+const arr = string.split(", ", 4);
+console.log(arr); //['h', 'e', 'l', 'l']
+```
+
+- reverse
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+arr.reverse();
+console.log(arr); // [5, 4, 3, 2, 1]
+```
+
+- splice
+
+  splice는 start와 end를 인자로 받고 start <= 범위 < end를 배열로부터 잘라 return 합니다.
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+const result = arr.splice(0, 2);
+console.log(result); // [1, 2]
+console.log(arr); // [3, 4, 5]
+```
+
+- slice
+
+  slice도 start와 end를 인자로 받는데요. splice와 동일하지만 원래 배열에는 영향을 미치고 싶지 않을 때 사용합니다.
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+const result = arr.slice(0, 2);
+console.log(result); // [1, 2]
+console.log(arr); // [1, 2, 3, 4, 5]
+```
+
+- find, filter, map, some, every, reduce
+
+```javascript
+class Student {
+  constructor(name, score, enrolled) {
+    this.name = name;
+    this.score = score;
+    this.enrolled = enrolled;
+  }
+}
+
+const students = [
+  new Student("minseok", 100, true),
+  new Student("hee", 100, false),
+  new Student("gu", 50, true),
+];
+
+const studnet1 = students.find((student) => student.score === 100);
+
+const enrolledStudents = students.filter((student) => student.enrolled);
+
+const scores = students.map((student) => student.score);
+
+// 조건을 하나라도 만족하면 true 그렇지 않으면 false를 return
+const minseok = students.some((student) => student.name === "minseok");
+
+const minseok2 = students.every((student) => student.name === "minseok");
+
+/*
+ reduce는 배열의 어떤 값을 누적할 때 사용한다.
+
+ reduce는 콜백 함수와 initial value를 인자로 받으며 콜백 함수의 인자는 prev와 cur이 들어간다. prev는 직전 호출 함수의 return 값이 되고 cur은 현재 element를 의미한다. 
+
+ initial value를 정의하지 않으면 배열의 0번째 index element가 initial value가 된다.
+*/
+const sum = students.reduce((prev, cur) => {
+  return prev + cur.score;
+}, 0);
+```
 
 ## DOM
 
