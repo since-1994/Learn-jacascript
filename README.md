@@ -1050,3 +1050,89 @@ init();
 - FETCH
 
 이제 실제 서버로부터 정보를 받아봅시다. 뭐 api 주소를 사용하다고 합시다. api 주소로부터 정보를 받아오려면 어떻게 할까요? `fetch('api주소')`를 하면 Promise 객체를 반환해줍니다.
+
+## Class
+
+### class란?
+
+붕어빵틀과도 같은 것
+
+### constructor
+
+name과 age를 전달해서 User라는 객체를 여러개 만들고 싶다면 아래와 같이 class안에 constructor를 정의할 수 있다.
+
+```javascript
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+const user1 = new User("minseok", 28);
+console.log(user1.age); //28
+```
+
+### getter, setter
+
+만약에 어떤 사용자에 대한 User 객체를 만드는데 나이에 대해 -1이라는 입력이 들어오면 우리는 -1이라고 그대로 처리해야하는가? 그렇지 않습니다.
+getter와 setter를 이용해서 이 상황을 해결해보겠습니다.
+
+```javascript
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  get age() {
+    return this.age;
+  }
+
+  set age(age) {
+    if (age < 0) {
+      this.age = 0;
+      return;
+    }
+    this.age = age;
+  }
+}
+
+const user1 = new User("minseok", -1);
+//RangeError: Maximum call stack size exceeded.
+console.log(user1.age);
+```
+
+위와 같이 getter와 setter를 정의해서 age에 대한 입력이 0이 들어온 경우에 대해 다룰 수 있다.
+
+- age에 대한 getter가 정의되어 있을때 this.age가 호출되면 age getter를 호출한다.
+- age에 대한 gsetter가 정의되어 있을때 this.age에 값을 할당하면 setter가 호출된다. 따라서 위와 같이 age가 0보다 작은 값이 들어오면 0을 할당해버린다.
+
+그런데! 위와 같이 작성하면 RangeError가 발생한다. 즉 무한 루프에 빠져버린다. 그 이유는 getter를 보면 this.age를 return하고 있다. this.age가 호출되면 age getter를 호출한다. age getter는 this.age를 return한다... 즉 무한 루프가 발생할 것을 알 수 있다.
+어떻게 하면 무한 루프를 막을 수 있을까?
+
+```javascript
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  get age() {
+    return this._age;
+  }
+
+  set age(age) {
+    if (age < 0) {
+      this._age = 0;
+      return;
+    }
+    this._age = age;
+  }
+}
+
+const user1 = new User("minseok", -1);
+console.log(user1.age); //0
+```
+
+위와 같이 getter와 setter안에서 age에 접근할 때 `this.age`와 같이 하지 않고 `this._age`와 같이 다른 변수명을 사용해주면 무한 루프에 빠지지 않고 사용 가능합니다.
